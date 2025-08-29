@@ -30,7 +30,7 @@ hexo.on('generateAfter', async function (post) {
 //triggered before hexo deploy.
 //it compare the newPost.json from your site and local to decide whether push the notification.
 // DeployAfter event has encode issue
-hexo.on("deployAfter", async function (post) {
+hexo.on("deployBefore", async function (post) {
     // Get newPost.json from your site.
     var newPostOnlineSite = await fetch(url.resolve(hexo.config.url, "newPost.json"));
     var newPostOnlineSite = await newPostOnlineSite.json();
@@ -49,10 +49,7 @@ hexo.on("deployAfter", async function (post) {
         var payload = {
             title: newPostLocal.title,
             message: newPostLocal.summary,
-            target_url: new URL(newPostLocal.url).pathname,
-            // segment: [4205],
-            send_at: moment().add(10, 'minutes').format()
-            // sid: '4557611'
+            target_url: new URL(newPostLocal.url).pathname
         };
         var headers = {
             webpushrKey: hexo.config.webPushNotification.webpushrKey,
@@ -78,27 +75,6 @@ hexo.on("deployAfter", async function (post) {
         }
         hexo.log.info(JSON.stringify(payload))
         request(options, callback);
-
-        // const response = await fetch(
-        //     "https://app.webpushr.com/api/v1/notification/send/segment",
-        //     {
-        //         method: "POST",
-        //         headers: {
-        //             webpushrKey: hexo.config.webPushNotification.webpushrKey,
-        //             webpushrAuthToken: hexo.config.webPushNotification.webpushrAuthToken,
-        //             "Content-Type": "application/json"
-        //         },
-        //         body: JSON.stringify(payload)
-        //     }
-        // );
-        // // const data = await response.json();
-        // console.log(response.status)
-        // if (!response.ok) {
-        //     // NOT res.status >= 200 && res.status < 300
-        //     hexo.log.error("Push Notification failed " + response.status.toString()+' '+response.statusText);
-        // } else {
-        //     hexo.log.info("Successfully push notification");
-        // }
     } else {
         hexo.log.info("No New Post detected.");
     }
